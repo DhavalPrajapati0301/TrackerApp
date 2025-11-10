@@ -33,6 +33,7 @@ public class UserEntity {
 	    private String role;	
 	    private String password;
 	    private String gender;
+	    private String profilePicUrl;
 	    
 	    @OneToMany
 	    @JoinColumn(name="userId")

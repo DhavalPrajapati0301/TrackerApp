@@ -13,6 +13,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>TrackerApp</name>
 	<description>TrackerApp</description>
+		<packaging>war</packaging>	
 	<url/>
 	<licenses>
 		<license/>
@@ -92,8 +93,16 @@
 			<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
 		</dependency>
 
-		
+		    <dependency>
+        <groupId>com.cloudinary</groupId>
+        <artifactId>cloudinary-http44</artifactId>
+        <version>1.33.0</version>
+    </dependency>
+    
 	</dependencies>
+
+
+
 
 	<build>
 		<plugins>

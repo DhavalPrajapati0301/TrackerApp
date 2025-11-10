@@ -1,6 +1,7 @@
 package com.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,7 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.entity.UserEntity;
 import com.repository.UserRepository;
 import com.service.MailerService;
@@ -34,6 +38,9 @@ public class SessionController {
     @Autowired
     PasswordEncoder passwordEncoder;
     
+    @Autowired
+    Cloudinary cloudinary;
+    
     @GetMapping("/")
     public String root()
     {
@@ -47,13 +54,24 @@ public class SessionController {
     }
     
     @PostMapping("saveuser")
-    public String saveUser(UserEntity entity) {
+    public String saveUser(UserEntity entity,MultipartFile profilePic , Model model) {
         
     	String epwd  = passwordEncoder.encode(entity.getPassword());
 		entity.setPassword(epwd);
         
-		userRepository.save(entity);
 //        mailerService.sendWelcomeMail(entity);
+		try {
+		Map map = 	cloudinary.uploader().upload(profilePic.getBytes(), 
+					ObjectUtils.asMap("resource_type", "auto"));
+				String profilePicUrl  = map.get("secure_url").toString();
+
+				entity.setProfilePicUrl(profilePicUrl);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		userRepository.save(entity);
+		
         return "Login"; 
     }
     
@@ -76,6 +94,7 @@ public class SessionController {
                 return "Dashboard";
             } else {
                 // Wrong password
+                session.setAttribute("user", user);
                 model.addAttribute("error", "Invalid password");
                 return "Login";
             }
@@ -85,7 +104,13 @@ public class SessionController {
             return "Login";
         }       
     }
-
+    
+    @GetMapping("logout")
+    public String logout(HttpSession session)
+    {
+    	session.invalidate();
+    	return "Login";
+    }
     
     @GetMapping("forgetpassword")
 	public String ForgetPassword()

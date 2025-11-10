@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -95,11 +96,75 @@
         }
 
         .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
             font-size: 0.95rem;
         }
 
         .user-info i {
             color: #4cc9f0;
+        }
+        
+        .profile-pic-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .profile-pic {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #4cc9f0;
+            background-color: #2c5364;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .profile-pic i {
+            font-size: 20px;
+            color: #b0c4de;
+        }
+        
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .dropdown-menu {
+            background-color: #0d1b2a;
+            border: 1px solid #2c5364;
+        }
+        
+        .dropdown-item {
+            color: #b0c4de;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #2c5364;
+            color: #fff;
+        }
+        
+        .dropdown-divider {
+            border-color: #2c5364;
+        }
+        
+        /* Default profile picture styling */
+        .default-profile {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
         }
     </style>
 </head>
@@ -126,7 +191,35 @@
         <div class="topbar">
             <h4>Welcome back, <span style="color:#4cc9f0;"><%= ((com.entity.UserEntity)session.getAttribute("user")) != null ? ((com.entity.UserEntity)session.getAttribute("user")).getFirstName() : "User" %></span></h4>
             <div class="user-info">
-                <i class="fas fa-user-circle me-2"></i> Logged in
+                <div class="profile-pic-container">
+                    <div class="profile-pic">
+                        <!-- Dynamic profile picture based on user data -->
+                        <c:choose>
+                            <c:when test="${not empty user.profilePicUrl}">
+                                <img src="${user.profilePicUrl}" alt="Profile Picture" onerror="this.style.display='none'; document.getElementById('defaultProfile').style.display='flex';">
+                                <div id="defaultProfile" class="default-profile" style="display: none;">
+                                    ${not empty user.firstName ? user.firstName.charAt(0) : 'U'}
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="default-profile">
+                                    ${not empty user.firstName ? user.firstName.charAt(0) : 'U'}
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm text-white dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <%= ((com.entity.UserEntity)session.getAttribute("user")) != null ? ((com.entity.UserEntity)session.getAttribute("user")).getFirstName() : "User" %>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> My Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="logout"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -173,6 +266,9 @@
         </div>
     </div>
 
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
         // Sales Chart
         const ctx = document.getElementById('salesChart').getContext('2d');
